@@ -1,23 +1,27 @@
 pico-8 cartridge // http://www.pico-8.com
-version 32
+version 34
 __lua__
-vpointy=-128
-vpointx=64
+function _init()
+	p={}
+	p.x,p.y=64,64
+	p.dx,p.dy=0,0
+end
 
 function _update()
-	if (btn(2)) vpointy-=1
-	if (btn(3)) vpointy+=1
+	local a,f=1,0.6
+	if (btn(0)) p.dx-=a
+	if (btn(1)) p.dx+=a
+	if (btn(2)) p.dy-=a
+	if (btn(3)) p.dy+=a
+	p.dx*=f
+	p.dy*=f
+	p.x+=p.dx
+	p.y+=p.dy
 end
 
 function _draw()
-	cls(7)
-	for i=-64,128+64,16 do
-		line(i,128,vpointx,vpointy,0)
-	end
-	for i=0,10 do
-		local y=128-i/2
-		line(0,y,128,y,0)
-	end
+	cls()
+	circfill(p.x,p.y,2,7)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
