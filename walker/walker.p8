@@ -10,26 +10,6 @@ function _init()
 	gennoise()
 	gennormals()
 	drawmap()
-	printh(stat(0))
-	
-	local maxd=0
-	local mx,my=0,0
-	for i=0,127 do
-		for j=0,127 do
-			local h1=noiseget(i,j)
-			local h2=noiseget((i+1)%128,j)
-			local h3=noiseget(i,(j+1)%128)
-			local h4=noiseget((i+1)%128,(j+1)%128)
-			local omd=maxd
-			maxd=max(abs(h1-h2),maxd)
-			maxd=max(abs(h1-h3),maxd)
-			maxd=max(abs(h4-h2),maxd)
-			maxd=max(abs(h4-h3),maxd)
-			if (omd!=maxd) mx,my=i,j
-		end
-	end
-	printh(maxd)
-	printh(mx..","..my)
 end
 
 function _update()
@@ -50,9 +30,9 @@ end
 
 function _draw()
 	cls(12)
-	--drawterrain()
-	--drawminimap()
-	drawmap()
+	drawterrain()
+	drawminimap()
+	--drawmap()
 	print("pos="..p.x..","..p.y..","..p.z,1,1,7)
 	print("cpu="..stat(1),1,7,7)
 end
@@ -106,27 +86,18 @@ end
 
 function gennormals()
 	local norms={}
+	local maxi=0
 	for i=0,127 do
 		norms[i]={}
 		for j=0,127 do
-			local v=0
-			v-=noiseget((i-2)%128,j)
-			v-=noiseget((i-1)%128,j)
-			v+=noiseget((i+1)%128,j)
-			v+=noiseget((i+2)%128,j)
-			norms[i][j]=v
-		end
-	end
-	
-	normalisearr(norms,16)
-	
-	for i=0,127 do
-		for j=0,127 do
-			local v=norms[i][j]
-			v=min(max(v*1.2+8,0),15)
+			local h1=noiseget(i,j)
+			local h2=noiseget((i+1)%128,j)
+			v=min(max(h2-h1+8,0),15)
 			normalset(i,j,v)
+			maxi=max(abs(h2-h1),v)
 		end
 	end
+	printh("max="..maxi)
 end
 
 function gennoise()
