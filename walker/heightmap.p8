@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 32
+version 34
 __lua__
 --main
 --configuration
@@ -23,9 +23,9 @@ __lua__
 	lightend=190
 	drawstart=5
 	drawstep=1
-	drawstepdeltanear=0.8
+	drawstepdeltanear=0.2
 	drawstepdeltafar=50
-	colwidth=3
+	colwidth=8
 	playerheight=0.15
 	--rendering sky
 	sgradsize=120
@@ -57,8 +57,8 @@ __lua__
 		--current states:
 			--0=normal
 			--1=mapopen
-	--pos={x=wsize/2*tsize,y=wsize/2*tsize,z=1}
-	pos={x=120,y=120,z=1}
+	pos={x=wsize/2*tsize,y=wsize/2*tsize,z=1}
+	--pos={x=120,y=120,z=1}
 	rot={h=2,v=64}
 
 function _init()
@@ -413,6 +413,7 @@ function drawterrain(vobjs)
 		--iterate across screen
 		local dx=(prx-plx)/numcols
 		local dy=(pry-ply)/numcols
+		local lastcolh=0
 		for i=0,numcols do
 			--get height in w&s space
 			local height=getheight(plx,ply)
@@ -442,10 +443,14 @@ function drawterrain(vobjs)
 					if z-1*dz>lastdraw[0][i] then
 						rectfill(sscol,ssheight,sscol+colwidth-1,ybuff[i]-1,col)
 						fillp(0)
-						rectfill(sscol,ybuff[i],sscol+colwidth-1,ybuff[i],colours[lastdraw[1][i]][3])
+						line(sscol,ybuff[i],sscol+colwidth-1,ybuff[i+1],colours[lastdraw[1][i]][3])
+
+						--rectfill(sscol,ybuff[i],sscol+colwidth-1,ybuff[i],colours[lastdraw[1][i]][3])
 					else
 						rectfill(sscol,ssheight,sscol+colwidth-1,ybuff[i],col)
 					end
+					--line(sscol-colwidth,lastcolh+1,sscol,ssheight+1,colours[ttype][3])
+					lastcolh=ssheight
 					ybuff[i]=ssheight
 				end
 				lastdraw[0][i]=z
@@ -468,7 +473,8 @@ function drawterrain(vobjs)
 		if (h>rot.v) then 
 			rectfill(sscol,rot.v,sscol+colwidth-1,h,12)
 		end
-		rectfill(sscol,h,sscol+colwidth-1,h,colours[lastdraw[1][i]][3])
+		line(sscol,ybuff[max(0,i-1)],sscol+colwidth-1,h,colours[lastdraw[1][i]][3])
+		--rectfill(sscol,h,sscol+colwidth-1,h,colours[lastdraw[1][i]][3])
 	end
 	
 	return objstodraw
