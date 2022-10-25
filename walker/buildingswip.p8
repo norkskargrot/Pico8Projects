@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 34
+version 36
 __lua__
 --main
 --configuration
@@ -113,8 +113,8 @@ function drawworld()
 	 drawclouds(rot)
 	 local vobjs=getvisobjs()
 		vobjs=drawterrain(vobjs)
-		--drawobjs(vobjs)
-		--drawbuilding()
+		drawobjs(vobjs)
+		drawbuilding()
 		--drawortho(vobjs)
 end
 

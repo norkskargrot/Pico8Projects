@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 38
+version 36
 __lua__
 --main
 tim=0
@@ -18,33 +18,33 @@ function _init()
 end
 
 function _update()
-	--if (btn(0)) p.rx-=rotspeed
-	--if (btn(1)) p.rx+=rotspeed
+	if (btn(0)) p.rx-=rotspeed
+	if (btn(1)) p.rx+=rotspeed
 	p.rx+=stat(38)/1000
 	p.rx=p.rx%1
 	p.ry+=stat(39)/5
 	p.ry=min(max(p.ry,-32),12)
 	
 	local sinr,cosr=sin(p.rx),cos(p.rx)
-	if (btn(2)) then
+	if (btn(2) or btn(2,1)) then
 	 p.x-=sinr*movspeed
 	 p.y-=cosr*movspeed
 	end
-	if (btn(3)) then
+	if (btn(3) or btn(3,1)) then
 	 p.x+=sinr*movspeed
 	 p.y+=cosr*movspeed
 	end
-	if (btn(0)) then
+	if (btn(0,1)) then
 	 p.x-=cosr*movspeed
 	 p.y+=sinr*movspeed
 	end
-	if (btn(1)) then
+	if (btn(1,1)) then
 	 p.x+=cosr*movspeed
 	 p.y-=sinr*movspeed
 	end
 	
 	if btn(4) then
-		p.dz=1
+		--p.dz=1
 	end
 	p.z+=p.dz
 	p.dz-=0.1
@@ -71,13 +71,14 @@ function _draw()
 	camera(0,p.ry)
 	drawsky(light)
 	drawcelestial()
-	--drawclouds(light)
+	drawclouds(light)
 	drawterrain(light)
 	camera()
 	
-	--drawpal()
+	drawpal()
 	--drawminimap()
 	--drawmap()
+	rectfill(0,0,40,6,6)
 	print("cpu="..stat(1),1,1,15)
 	--print("light="..light,1,6,15)
 	--print("tim="..tim,1,12,15)
@@ -118,8 +119,8 @@ function getmapdata(x,y)
 	]]--
 	local x1,x2=x&0b01111111,(x+1)&0b01111111
 	local addr=0x8000+((y&0b01111111)<<8)
-	local v1=%(addr+(x1<<1))
-	local v2=%(addr+(x2<<1))
+	local v1=peek2(addr+(x1<<1))
+	local v2=peek2(addr+(x2<<1))
 	local h1=v1&0x00ff
 	local h2=v2&0x00ff
 	local n1=((v1&0x0f00)>>8)
@@ -132,8 +133,7 @@ end
 function getsimpleh(x,y)
 	x=(x>>6)&0b01111111
 	y=(y>>6)&0b01111111
-	local v=%(0x8000+(x<<1)+(y<<8))
-	return v&0x00ff,((v&0x0f00)>>8)
+	local v=peek2(0x8000+(x<<1)+(y<<8))	return v&0x00ff,((v&0x0f00)>>8)-8
 end
 
 function noiseset(x,y,v)
@@ -346,7 +346,7 @@ end
 
 function drawterrain(l)
 	local maxdist=8000
-	local hddist=2000
+	local hddist=3000
 	local colwidth=3
 	local terrh=1200
 	local dz,ddz1,ddz2=1,2,200
@@ -364,7 +364,11 @@ function drawterrain(l)
 	end
 	local sinr,cosr=sin(p.rx),cos(p.rx)
 	
+	local heights={}
+	local heightsi=0
+	
 	while z<hddist do
+		
 		local srz,crz=sinr*z*0.5,cosr*z*0.5
 		local lx,ly,rx,ry,dx,dy
 		lx=(-crz-srz)+px
@@ -398,41 +402,6 @@ function drawterrain(l)
 		end
 		z+=dz
 		dz+=ddz1
-	end
-	
-	while z<maxdist do
-		local srz,crz=sinr*z*0.5,cosr*z*0.5
-		local lx,ly,rx,ry,dx,dy
-		lx=(-crz-srz)+px
-		ly=(srz-crz)+py
-		rx=(crz-srz)+px
-		ry=(-srz-crz)+py
-		dx=(rx-lx)/numcols
-		dy=(ry-ly)/numcols
-		--local s=(z-hddist)/(maxdist-hddist)*10
-		--fillp(shades[flr(s)]|0b.1)
-		local waterh=flr(64+(((pz-16)/z)*terrh))
-		for i=0,numcols do
-			h,n=getsimpleh(lx,ly)
-			local ssy=flr(64+(((pz-h)/z)*terrh))
-			local yb=min(ybuff[i],waterh)
-			if ssy<yb then
-				local ssx=i*colwidth
-				local t=flr(h>>4)-1
-				local c=0xb0|(t*3+1)
-				rectfill(ssx,ssy,ssx+colwidth,yb,c)
-				if z>(zbuff[i]+dz) then
-					fillp()
-					line(ssx,yb,ssx+colwidth,yb,6)
-				end
-				ybuff[i]=ssy
-				zbuff[i]=z
-			end
-			lx+=dx
-			ly+=dy
-		end
-		z+=dz
-		dz+=ddz2
 	end
  	
 	fillp()
