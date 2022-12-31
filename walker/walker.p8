@@ -71,7 +71,7 @@ function _draw()
 	camera(0,p.ry)
 	drawsky(light)
 	drawcelestial()
-	--drawclouds(light)
+	drawclouds(light)
 	drawterrain(light)
 	camera()
 	

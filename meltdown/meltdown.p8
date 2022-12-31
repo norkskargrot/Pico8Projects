@@ -55,6 +55,15 @@ function _draw()
 	--print(stat(7),1,1,7)
 	--print(stat(1),1,8,7)
 end
+
+function shrinkscreen(camx,camy,d)
+	poke(0x5f54,0x60)
+	camera()
+	local v=128-2*d
+	sspr(0,0,128,128,d,d,v,v)
+	poke(0x5f54,0x00)
+	camera(camx,camy)
+end
 -->8
 --physics
 

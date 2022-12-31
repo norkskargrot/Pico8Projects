@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 32
+version 38
 __lua__
 --global
 objs={}
@@ -212,7 +212,7 @@ function movement(obj,inpt)
 	local tile=mget(obj.x%128,obj.y%64)
 	if tile==11 then
 		obj.dx+=inpt.x*obj.acc*0.2
-		obj.dy+=inpt.y*acc*0.2
+		obj.dy+=inpt.y*obj.acc*0.2
 	elseif tile==6 then
 		obj.dx+=inpt.x*obj.acc
 		obj.dy+=inpt.y*obj.acc

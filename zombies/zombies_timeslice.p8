@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 32
+version 36
 __lua__
 p={x=32,y=32}
 cpath=1
