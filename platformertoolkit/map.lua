@@ -15,5 +15,10 @@ end
 
 function is_solid(x,y,f)
     if (not f) f=0b00000011
-    return(band(fget(mget(x/8,y/8)), f)>0)
+    local m=mget(x/8,y/8)
+    if (fget(m,2)) return (y%8)-(x%8)/2>-1
+    if (fget(m,3)) return (y%8)-(x%8)/2>=3
+    if (fget(m,4)) return (y%8)+(x%8)/2>=7
+    if (fget(m,5)) return (y%8)+(x%8)/2>=3
+    return(band(fget(m), f)>0)
 end

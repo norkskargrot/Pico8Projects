@@ -1,6 +1,6 @@
 --config
 p_acc=0.8
-p_drag=0.8
+p_drag=0.9
 p_grav=0.5
 p_jump=5
 p_cyote_frames=5
@@ -10,9 +10,11 @@ p_jumpbuff_frames=5
 p={}
 p.x,p.y=8,8
 p.dx,p.dy=0,0
-p.w,p.h=7,7
+p.w,p.h=3,5
 p.cyote,p.jumpbuff=0,0
 p.spr=2
+p.collflgs=0b00000001
+
 
 function update_p ()
     --update cyote time and jumpbuffer
@@ -37,7 +39,13 @@ function update_p ()
     --x axis collision
     for i=p.dx,0,-sgn(p.dx) do
         if is_solid_area(p.x+i, p.y, p.w, p.h, 0b00000001) then
-            p.dx=0
+            --climb slopes
+            local climb_height=ceil(abs(i/2))
+            if not is_solid_area(p.x+i, p.y-climb_height, p.w, p.h, 0b00000001) then
+                p.y-=climb_height
+            else
+                p.dx=0
+            end
         else
             p.x+=i
             break
@@ -45,14 +53,14 @@ function update_p ()
     end
 
     --oneway platform collision
-    local collflgs=0b00000001
+    p.collflgs=0b00000001
     if p.dy>0 and not is_solid_area(p.x,p.y,p.w,p.h,0b00000010) then
-        if (not btn(3)) collflgs=0b00000011
+        if (not btn(3)) p.collflgs=0b00000011
     end
 
     --y axis collision
     for i=p.dy,0,-sgn(p.dy) do
-        if is_solid_area(p.x, p.y+i, p.w, p.h, collflgs) then
+        if is_solid_area(p.x, p.y+i, p.w, p.h, p.collflgs) then
             p.dy=0
         else
             p.y+=i
@@ -66,5 +74,5 @@ function draw_p()
 end
 
 function is_grounded(p)
-    return is_solid_area(p.x,p.y+1,p.w,p.h)
+    return is_solid_area(p.x,p.y+1,p.w,p.h,p.collflgs)
 end
