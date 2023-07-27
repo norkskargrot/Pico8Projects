@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 32
+version 38
 __lua__
 p={}
 s={}
@@ -32,10 +32,14 @@ end
 function _update()
 	cls()
 	map(0,0,0,0,16,16)
-	if(btn(0)) p[1].x-=2
-	if(btn(1)) p[1].x+=2
-	if(btn(2)) p[1].y-=2
-	if(btn(3)) p[1].y+=2
+	local dx,dy=0,0
+	if(btn(0)) dx-=2
+	if(btn(1)) dx+=2
+	if(btn(2)) dy-=2
+	if(btn(3)) dy+=2
+	
+	if(not issolid(p[1].x+dx,p[1].y)) p[1].x+=dx
+	if(not issolid(p[1].x,p[1].y+dy)) p[1].y+=dy
 	
 	for k,v in pairs(p) do
 		if(not v.lock) then

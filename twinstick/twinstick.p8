@@ -675,7 +675,7 @@ function	fireupdate(x,y,vol)
 end
 
 function earthupdate(x,y,vol)
-	if (flr(rnd(10)%10)==0) initenemy(x,y)
+	--if (flr(rnd(10)%10)==0) initenemy(x,y)
 	if vol==1 then
 		if getmaph(x,y)==0 then
 		 msetandvol(x,y,5)

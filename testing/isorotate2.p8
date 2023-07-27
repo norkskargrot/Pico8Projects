@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 32
+version 38
 __lua__
 p={x=16,y=16,r=0.1,h=4}
 col={
@@ -10,12 +10,12 @@ col={
 function _update()
 	local sinr,cosr=sin(p.r),cos(p.r)
 	local spd=0.3
-	if (btn(0)) p.x,p.y=p.x-cosr*spd,p.y-sinr*spd
-	if (btn(1)) p.x,p.y=p.x+cosr*spd,p.y+sinr*spd
-	if (btn(2)) p.x,p.y=p.x+sinr*spd,p.y-cosr*spd
-	if (btn(3)) p.x,p.y=p.x-sinr*spd,p.y+cosr*spd
-	if (btn(4)) p.r=(p.r-0.003)%1
-	if (btn(5)) p.r=(p.r+0.003)%1
+	--if (btn(0)) p.x,p.y=p.x-cosr*spd,p.y-sinr*spd
+	---if (btn(1)) p.x,p.y=p.x+cosr*spd,p.y+sinr*spd
+	--if (btn(2)) p.x,p.y=p.x+sinr*spd,p.y-cosr*spd
+	--if (btn(3)) p.x,p.y=p.x-sinr*spd,p.y+cosr*spd
+	if (btn(0)) p.r=(p.r-0.003)%1
+	if (btn(1)) p.r=(p.r+0.003)%1
 	
 	--tilting controls
 	--if (btn(2)) p.h+=0.1
@@ -57,7 +57,7 @@ function _draw()
 			local y=p.h*(i*cosr-j*sinr)
 			local m=mget(j+p.x,i+p.y)
 			local h=fget(m)*8-p.h
-		 local shade=flr(max(1,min(17,6-y*0.1-h/6)))
+		 local shade=flr(max(1,min(17,6-y*0.2-h/6)))
 			fillp(shades[shade]|0b.01)
 			spr(21,64+x,64+y-h+4,1,2)
 			pal(3,0)
