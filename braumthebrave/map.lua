@@ -1,5 +1,37 @@
+rooms = {
+    { x1 = 0, y1 = 0, x2 = 15, y2 = 15 },
+    { x1 = 15, y1 = 6, x2 = 22, y2 = 15 },
+    { x1 = 15, y1 = 1, x2 = 29, y2 = 6 },
+    { x1 = 22, y1 = 6, x2 = 34, y2 = 14 }
+}
+
+curr_room = 1
+prev_room = 1
+
+function update_room()
+    if (is_in_room(curr_room, p.x, p.y)) return
+    for i = 1, #rooms do
+        if is_in_room(i, p.x, p.y) then
+            prev_room = curr_room
+            curr_room = i
+            return
+        end
+    end
+end
+
+function is_in_room(n, x, y)
+    x, y = x / 8, y / 8
+    local r = rooms[n]
+    return x >= r.x1 and x <= r.x2 and y >= r.y1 and y <= r.y2
+end
+
 function draw_map()
-    map(0, 0, 0, 0, 16, 16)
+    draw_room(rooms[prev_room])
+    draw_room(rooms[curr_room])
+end
+
+function draw_room(r)
+    map(r.x1, r.y1, r.x1 * 8, r.y1 * 8, r.x2 - r.x1 + 1, r.y2 - r.y1 + 1)
 end
 
 function is_solid_area(x, y, w, h, f)

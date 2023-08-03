@@ -1,18 +1,18 @@
 --config
-p_acc = 0.6
-p_drag = 0.65
-p_grav = 0.3
-p_jump = 3.2
-p_cyote_frames = 5
-p_jumpbuff_frames = 5
-p_apexglide_frames = 5
-p_apexglide_grav = 0.1
+p_acc = 0.4
+p_drag = 0.63
+p_grav = 0.1
+p_jump = 1.8
+p_cyote_frames = 10
+p_jumpbuff_frames = 10
+p_apexglide_frames = 0
+p_apexglide_grav = 0.05
 
 --setting up the player
 p = {}
 p.x, p.y = 8, 8
 p.dx, p.dy = 0, 0
-p.w, p.h = 3, 5
+p.w, p.h = 2, 3
 p.cyote, p.jumpbuff, p.apexglide = 0, 0, 0
 p.on_slope = false
 p.jumped = false
@@ -115,6 +115,7 @@ function slope_lift(p)
 end
 
 function draw_p()
+    local x, y = flr(p.x), flr(p.y)
     rectfill(p.x, p.y, p.x + p.w, p.y + p.h, 8)
     pset(p.x + flr(p.w / 2), p.y + p.h, 7)
 end
