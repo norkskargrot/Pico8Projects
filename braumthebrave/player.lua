@@ -1,24 +1,45 @@
 --config
-p_acc = 0.4
+p_acc = 0.3
 p_drag = 0.63
-p_grav = 0.1
-p_jump = 1.8
+p_grav = 0.08
+p_jump = 1.7
 p_cyote_frames = 10
 p_jumpbuff_frames = 10
-p_apexglide_frames = 0
-p_apexglide_grav = 0.05
+p_damaged_immunity_frames = 20
 
 --setting up the player
 p = {}
+--physics
 p.x, p.y = 8, 8
 p.dx, p.dy = 0, 0
 p.w, p.h = 2, 3
-p.cyote, p.jumpbuff, p.apexglide = 0, 0, 0
+p.cyote, p.jumpbuff = 0, 0
 p.on_slope = false
 p.jumped = false
 p.collflgs = 0b00000001
+--drawing
+p.spr_off_x = - 1
+p.spr_off_y = -1
+p.animplay = "p_walk"
+
+--gameplay
+p.damage_time = 0
+p.armoured = true
+p.alignment = true
 
 function update_p()
+    p.damage_time = max(p.damage_time - 1, 0)
+
+    p_physics()
+    p_anim()
+    if btnp(4) then
+        local x = p.x
+        if not p.dir then x += p.w end
+        init_projectile(x, p.y - 2, 0, 0, p.dir, "sword_swipe")
+    end
+end
+
+function p_physics()
     --update cyote time and jumpbuffer
     p.cyote = max(p.cyote - 1, 0)
     if (is_grounded(p)) p.cyote = p_cyote_frames
@@ -30,17 +51,8 @@ function update_p()
     if (btn(1)) inx += 1
     p.dx = (p.dx + inx * p_acc) * p_drag
 
-    --y axis gravity and apex glide
-    p.apexglide = max(p.apexglide - 1, 0)
-    if p.dy < 0 and p.dy + p_grav > 0 then
-        p.apexglide = p_apexglide_frames
-        p.dy = 0
-    end
-    if p.apexglide <= 0 then
-        p.dy += p_grav
-    else
-        p.dy += p_apexglide_grav
-    end
+    --y axis gravity
+    p.dy += p_grav
 
     --jumping
     p.jumped = false
@@ -106,18 +118,69 @@ function slope_lift(p)
     if (fget(tile, 6)) fy = fy - 1 + hlx
     if (fget(tile, 7)) fy = fy + 3 + hlx
     fy = fy - p.h
-    if p.y >= fy then
+    --if p.y >= fy then
+    if p.dy >= 0 then
         p.y = fy
         p.dy = 0
         return true
     end
+    --end
     return false
 end
 
+function p_anim()
+    if (p.dx < 0) p.dir = true
+    if (p.dx > 0) p.dir = false
+    
+    if p.animstate == "p_idle" or p.animstate == "p_walk" then
+        if not is_grounded(p) then
+            if p.dy > 0 then
+                p.animplay = "p_aerial_up"
+            else
+                p.animplay = "p_aerial_down"
+            end
+        elseif abs(p.dx) > 0.3 then
+            p.animplay = "p_walk"
+        elseif abs(p.dx) < 0.3 then
+            p.animplay = "p_idle"
+        end
+    elseif p.animstate == "p_aerial_up" or p.animstate == "p_aerial_down" then
+        if p.dy > 0 then
+            p.animplay = "p_aerial_up"
+        else
+            p.animplay = "p_aerial_down"
+        end
+        if is_grounded(p) then
+            p.animplay = "p_idle"
+        end
+    end
+
+    -- Attacking
+    if (btnp(4)) p.animplay = "p_attack"
+end
+
+function damage_p(x_bounce)
+    if (p.damage_time > 0) return
+    p.damage_time = p_damaged_immunity_frames
+
+    p.dx = x_bounce * 4
+    p.dy = -1
+
+    if p.armoured then
+        p.armoured = false
+    else
+        --stop()
+    end
+end
+
 function draw_p()
-    local x, y = flr(p.x), flr(p.y)
-    rectfill(p.x, p.y, p.x + p.w, p.y + p.h, 8)
-    pset(p.x + flr(p.w / 2), p.y + p.h, 7)
+    --rect(p.x, p.y, p.x + p.w, p.y + p.h, 8)
+    --pset(p.x + flr(p.w / 2), p.y + p.h, 7)
+    animate(p)
+    spr_outline(p)
+    p.pal = nil
+    if (p.damage_time > 0) p.pal = {11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11}
+    set_pal()
 end
 
 function is_grounded(p)
