@@ -2,7 +2,7 @@
 p_acc = 0.6
 p_drag = 0.65
 p_grav = 0.3
-p_jump = 3.2
+p_jump = 2.5
 p_cyote_frames = 5
 p_jumpbuff_frames = 5
 p_apexglide_frames = 5
@@ -16,7 +16,7 @@ p.w, p.h = 3, 5
 p.cyote, p.jumpbuff, p.apexglide = 0, 0, 0
 p.on_slope = false
 p.jumped = false
-p.collflgs = 0b00000001
+p.oneway_col_tile_y = 0
 
 function update_p()
     --update cyote time and jumpbuffer
@@ -57,7 +57,7 @@ function update_p()
             if is_solid(p.x + i, p.y + p.h / 2) or is_solid(p.x + i + p.w, p.y + p.h / 2) then
                 hit = true
             end
-        elseif is_solid_area(p.x + i, p.y, p.w, p.h, 0b00000001) then
+        elseif is_solid_area(p.x + i, p.y, p.w, p.h) then
             hit = true
         end
 
@@ -69,16 +69,13 @@ function update_p()
         end
     end
 
-    --oneway platform detection
-    p.collflgs = 0b00000001
-    if p.dy > 0 and not is_solid_area(p.x, p.y, p.w, p.h, 0b00000010) then
-        if (not btn(3)) p.collflgs = 0b00000011
-    end
+    p.oneway_col_tile_y = ceil(((p.y + p.h) / 8))
+    if (btn(3)) p.oneway_col_tile_y += 1
 
     --y axis collision
     if p.jumped or not p.on_slope then
         for i = p.dy, 0, -sgn(p.dy) do
-            if is_solid_area(p.x, p.y + i, p.w, p.h, p.collflgs) then
+            if is_solid_area(p.x, p.y + i, p.w, p.h, p.oneway_col_tile_y) then
                 p.dy = 0
             else
                 p.y += i
@@ -120,5 +117,5 @@ function draw_p()
 end
 
 function is_grounded(p)
-    return p.on_slope or is_solid_area(p.x, p.y + 1, p.w, p.h, p.collflgs)
+    return p.on_slope or is_solid_area(p.x, p.y + 1, p.w, p.h, p.oneway_col_tile_y)
 end

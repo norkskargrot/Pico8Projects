@@ -3,7 +3,6 @@ function draw_map()
 end
 
 function is_solid_area(x, y, w, h, f)
-    if (not f) f = 0b00000011
     return is_solid(x, y, f)
             or is_solid(x + w, y, f)
             or is_solid(x, y + h, f)
@@ -11,8 +10,8 @@ function is_solid_area(x, y, w, h, f)
 end
 
 function is_solid(x, y, f)
-    if (not f) f = 0b00000011
     local m = mget(x / 8, y / 8)
-    local lx, ly = x % 8, y % 8
-    return band(fget(m), f) > 0
+    local colflgs = 0b00000001
+    if (f != nil and y / 8 > f) colflgs = 0b00000011
+    return band(fget(m), colflgs) > 0
 end
