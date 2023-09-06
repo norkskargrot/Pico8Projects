@@ -2,7 +2,9 @@
 p_acc = 0.3
 p_drag = 0.63
 p_grav = 0.08
-p_jump = 1.7
+p_jump = -1.4
+p_jumphold_max_frames = 20
+p_jumphold_acc = -0.03
 p_cyote_frames = 10
 p_jumpbuff_frames = 10
 p_damaged_immunity_frames = 20
@@ -16,6 +18,7 @@ p.w, p.h = 2, 3
 p.cyote, p.jumpbuff = 0, 0
 p.on_slope = false
 p.jumped = false
+p.jumpheld = nil
 p.collflgs = 0b00000001
 --drawing
 p.spr_off_x = - 1
@@ -45,6 +48,14 @@ function p_physics()
     if (is_grounded(p)) p.cyote = p_cyote_frames
     p.jumpbuff = max(p.jumpbuff - 1, 0)
     if (btnp(2)) p.jumpbuff = p_jumpbuff_frames
+
+    --variable jump height
+    if btn(2) and p.jumpheld != nil then
+        p.jumpheld += 1
+        p.dy += p_jumphold_acc
+        if (p.jumpheld >= p_jumphold_max_frames) p.jumpheld = nil
+    end
+
     --x axis input, accellaration, and drag
     local inx = 0
     if (btn(0)) inx -= 1
@@ -58,8 +69,9 @@ function p_physics()
     p.jumped = false
     if p.cyote > 0 and p.jumpbuff > 0 then
         p.jumped = true
-        p.dy = -p_jump
+        p.dy = p_jump
         p.cyote, p.jumpbuff = 0, 0
+        p.jumpheld = 0
     end
 
     --x axis collision
@@ -69,7 +81,7 @@ function p_physics()
             if is_solid(p.x + i, p.y + p.h / 2) or is_solid(p.x + i + p.w, p.y + p.h / 2) then
                 hit = true
             end
-        elseif is_solid_area(p.x + i, p.y, p.w, p.h, 0b00000001) then
+        elseif is_solid_area(p.x + i, p.y, p.w, p.h) then
             hit = true
         end
 
@@ -82,15 +94,13 @@ function p_physics()
     end
 
     --oneway platform detection
-    p.collflgs = 0b00000001
-    if p.dy > 0 and not is_solid_area(p.x, p.y, p.w, p.h, 0b00000010) then
-        if (not btn(3)) p.collflgs = 0b00000011
-    end
+    p.oneway_col_tile_y = ceil(((p.y + p.h) / 8))
+    if (btn(3)) p.oneway_col_tile_y += 1
 
     --y axis collision
     if p.jumped or not p.on_slope then
         for i = p.dy, 0, -sgn(p.dy) do
-            if is_solid_area(p.x, p.y + i, p.w, p.h, p.collflgs) then
+            if is_solid_area(p.x, p.y + i, p.w, p.h, p.oneway_col_tile_y) then
                 p.dy = 0
             else
                 p.y += i
@@ -184,5 +194,5 @@ function draw_p()
 end
 
 function is_grounded(p)
-    return p.on_slope or is_solid_area(p.x, p.y + 1, p.w, p.h, p.collflgs)
+    return p.on_slope or is_solid_area(p.x, p.y + 1, p.w, p.h, p.oneway_col_tile_y)
 end

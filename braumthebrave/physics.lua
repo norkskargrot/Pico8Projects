@@ -12,7 +12,7 @@ function update_phys_obj(p)
             if is_solid(p.x + i, p.y + p.h / 2) or is_solid(p.x + i + p.w, p.y + p.h / 2) then
                 hit = true
             end
-        elseif is_solid_area(p.x + i, p.y, p.w, p.h, 0b00000001) then
+        elseif is_solid_area(p.x + i, p.y, p.w, p.h) then
             hit = true
         end
 
@@ -25,15 +25,13 @@ function update_phys_obj(p)
     end
 
     --oneway platform detection
-    p.collflgs = 0b00000001
-    if p.dy > 0 and not is_solid_area(p.x, p.y, p.w, p.h, 0b00000010) then
-        if (not btn(3)) p.collflgs = 0b00000011
-    end
+    p.oneway_col_tile_y = ceil(((p.y + p.h) / 8))
+    if (btn(3)) p.oneway_col_tile_y += 1
 
     --y axis collision
     if not p.on_slope then
         for i = p.dy, 0, -sgn(p.dy) do
-            if is_solid_area(p.x, p.y + i, p.w, p.h, p.collflgs) then
+            if is_solid_area(p.x, p.y + i, p.w, p.h, p.oneway_col_tile_y) then
                 p.dy = 0
             else
                 p.y += i
@@ -54,7 +52,6 @@ function boxboxoverlap(a,b)
 end
 
 function is_solid_area(x, y, w, h, f)
-    if (not f) f = 0b00000011
     return is_solid(x, y, f)
             or is_solid(x + w, y, f)
             or is_solid(x, y + h, f)
@@ -62,8 +59,8 @@ function is_solid_area(x, y, w, h, f)
 end
 
 function is_solid(x, y, f)
-    if (not f) f = 0b00000011
     local m = mget(x / 8, y / 8)
-    local lx, ly = x % 8, y % 8
-    return band(fget(m), f) > 0
+    local colflgs = 0b00000001
+    if (f != nil and y / 8 > f) colflgs = 0b00000011
+    return band(fget(m), colflgs) > 0
 end
