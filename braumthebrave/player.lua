@@ -2,9 +2,9 @@
 p_acc = 0.3
 p_drag = 0.63
 p_grav = 0.08
-p_jump = -1.4
+p_jump = -1.3
 p_jumphold_max_frames = 20
-p_jumphold_acc = -0.03
+p_jumphold_acc = -0.04
 p_cyote_frames = 10
 p_jumpbuff_frames = 10
 p_damaged_immunity_frames = 20
