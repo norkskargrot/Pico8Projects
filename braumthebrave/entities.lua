@@ -87,9 +87,9 @@ end
 
 function cliff_in_front(p)
     if p.dir then
-        return (not is_solid(p.x, p.y + p.h + 6, 0b11111111))
+        return (not is_solid_or_slope(p.x, p.y + p.h + 4))
     else
-        return (not is_solid(p.x + p.w, p.y + p.h + 6, 0b11111111))
+        return (not is_solid_or_slope(p.x + p.w, p.y + p.h + 4))
     end
 end
 

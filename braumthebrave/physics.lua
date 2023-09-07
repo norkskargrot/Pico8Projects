@@ -64,3 +64,10 @@ function is_solid(x, y, f)
     if (f != nil and y / 8 > f) colflgs = 0b00000011
     return band(fget(m), colflgs) > 0
 end
+
+function is_solid_or_slope(x, y, f)
+    local m = mget(x / 8, y / 8)
+    local colflgs = 0b11111101
+    if (f != nil and y / 8 > f) colflgs = 0b11111111
+    return band(fget(m), colflgs) > 0
+end

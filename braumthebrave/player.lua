@@ -35,7 +35,7 @@ function update_p()
 
     p_physics()
     p_anim()
-    if btnp(4) then
+    if btnp(5) then
         local x = p.x
         if not p.dir then x += p.w end
         init_projectile(x, p.y - 2, 0, 0, p.dir, "sword_swipe")
@@ -47,10 +47,10 @@ function p_physics()
     p.cyote = max(p.cyote - 1, 0)
     if (is_grounded(p)) p.cyote = p_cyote_frames
     p.jumpbuff = max(p.jumpbuff - 1, 0)
-    if (btnp(2)) p.jumpbuff = p_jumpbuff_frames
+    if (btnp(2) or btnp(4)) p.jumpbuff = p_jumpbuff_frames
 
     --variable jump height
-    if btn(2) and p.jumpheld != nil then
+    if (btn(2) or btn(4)) and p.jumpheld != nil then
         p.jumpheld += 1
         p.dy += p_jumphold_acc
         if (p.jumpheld >= p_jumphold_max_frames) p.jumpheld = nil
@@ -166,7 +166,7 @@ function p_anim()
     end
 
     -- Attacking
-    if (btnp(4)) p.animplay = "p_attack"
+    if (btnp(5)) p.animplay = "p_attack"
 end
 
 function damage_p(x_bounce)
